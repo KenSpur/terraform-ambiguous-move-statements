@@ -1,31 +1,38 @@
 terraform {
   required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "3.68.0"
+    null = {
+      source = "hashicorp/null"
     }
   }
 }
 
-variable "name" {
-  type = string
+locals {
+  condition = true
 }
 
-variable "location" {
-  type = string
+// resource "null_resource" "sub_a" {}
+
+moved {
+  from = null_resource.sub_a
+  to   = null_resource.sub_b
 }
 
-# resource "azurerm_resource_group" "main" {
-#   name     = var.name
-#   location = var.location
+// resource "null_resource" "sub_b" {}
+
+moved {
+  from = null_resource.sub_b
+  to   = null_resource.sub_b[0]
+}
+
+# resource "null_resource" "sub_b" {
+#   count = local.condition ? 1 : 0
 # }
 
 moved {
-  from = azurerm_resource_group.main
-  to   = azurerm_resource_group.moved
+  from = null_resource.sub_b[0]
+  to   = module.sub_null_resource.null_resource.sub_sub_c
 }
 
-resource "azurerm_resource_group" "moved" {
-  name     = var.name
-  location = var.location
+module "sub_null_resource" {
+  source = "./sub_null_resource"
 }
